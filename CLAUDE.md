@@ -18,4 +18,5 @@ Claim-deletion tests of natural language autoencoder (NLA) reconstructors on two
   the blog post); never draft or polish that text.
 - Every reported number must come from a script in the repo; add one under `fve_claims/audit/` rather than
   quoting a one-off computation.
-- Do not overwrite `fve_claims/audit/out/claim_spotcheck_BLIND.md`: it holds the human's blind labels.
+- Do not overwrite `fve_claims/audit/out/claim_spotcheck_BLIND.md` or `final_sentence_check_BLIND.md`: they hold the
+  human's blind labels. Never print a KEY file's labels where the human might read them before labelling.

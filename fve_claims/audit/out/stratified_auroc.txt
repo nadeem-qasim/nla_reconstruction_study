@@ -1,0 +1,82 @@
+=== 7B ===  n=1168 (519 true / 649 false); FVE denominator D_local 0.6208 (released 0.7335)
+share of claims in the final sentence: true 0.308, false 0.317
+deletion AUROC, true vs false (document-bootstrap 95% CI):
+  pooled                          n=1168  0.581 [0.551, 0.613]
+  final sentence                  n= 366  0.668 [0.613, 0.727]
+  elsewhere                       n= 802  0.542 [0.502, 0.583]
+  position-stratified             n=1168  0.563 [0.529, 0.598]
+  final, same length tertile      n= 366  0.652 [0.589, 0.716]
+  final, same subtype             n= 366  0.579 [0.493, 0.669]
+  final, same subtype + tertile   n= 366  0.604 [0.510, 0.701]
+  deleted length alone, final sentence  0.337   (median deleted chars: true 22, false 29)
+final sentence, within documents: true-claim mean > false-claim mean in 69 of 91 documents (two-sided binomial p = 8.2e-07)
+deletion drop, pp (median / mean):
+  final sentence  true   1.66 /   3.26 (n=160)   false   0.31 /   1.23 (n=206)
+  elsewhere       true   0.46 /   0.84 (n=359)   false   0.32 /   0.81 (n=443)
+  the 10 largest final-sentence true drops carry 33% of the summed true drop
+final sentence, subtype x truth (n, median pp, mean pp):
+                        size  median   mean
+  subtype        truth                     
+  attribute      false    17    1.24   1.71
+                 true      5    3.97   4.57
+  cause          false     7    0.54   1.06
+                 true      1   13.61  13.61
+  date           false     6    0.68   0.90
+                 true      3    3.69   2.80
+  event          false    17    1.23   1.74
+                 true      9    3.90   5.75
+  exact_words    false    26    1.70   2.56
+                 true      1    0.31   0.31
+  final_token    false     6    2.12   2.21
+                 true     94    2.90   3.86
+  identification false     5    0.14   4.27
+  local_text     false   100    0.04   0.09
+                 true     44    0.12   1.04
+  quantity       false     5    1.46   1.34
+                 true      2    7.62   7.62
+  relationship   false    15    3.00   4.32
+                 true      1    0.94   0.94
+  topic          false     2    0.58   0.58
+
+=== 27B ===  n=1308 (863 true / 445 false); FVE denominator D_local 0.3709 (none released)
+share of claims in the final sentence: true 0.121, false 0.378
+deletion AUROC, true vs false (document-bootstrap 95% CI):
+  pooled                          n=1308  0.490 [0.451, 0.529]
+  final sentence                  n= 272  0.696 [0.625, 0.764]
+  elsewhere                       n=1036  0.506 [0.461, 0.551]
+  position-stratified             n=1308  0.521 [0.479, 0.565]
+  final, same length tertile      n= 272  0.681 [0.604, 0.755]
+  final, same subtype             n= 272  0.734 [0.635, 0.831]
+  final, same subtype + tertile   n= 272  0.702 [0.595, 0.810]
+  deleted length alone, final sentence  0.577   (median deleted chars: true 50, false 44)
+final sentence, within documents: true-claim mean > false-claim mean in 38 of 48 documents (two-sided binomial p = 6.2e-05)
+deletion drop, pp (median / mean):
+  final sentence  true   4.10 /  29.09 (n=104)   false   0.70 /   4.60 (n=168)
+  elsewhere       true   0.13 /   0.73 (n=759)   false   0.09 /   1.48 (n=277)
+  the 10 largest final-sentence true drops carry 38% of the summed true drop
+final sentence, subtype x truth (n, median pp, mean pp):
+                        size  median   mean
+  subtype        truth                     
+  attribute      false    56    0.33   0.53
+                 true     39    1.42  20.73
+  cause          true      4    3.63  27.32
+  date           false    13    0.84   8.72
+                 true      3   87.32  77.00
+  event          false    18    0.65   6.15
+                 true     25   41.46  50.92
+  exact_words    false     4    2.05   2.25
+                 true      4    6.26  13.26
+  final_token    true      5    0.00   1.29
+  final_word     false     1   -0.01  -0.01
+                 true      2    2.63   2.63
+  identification false    30    0.78   6.99
+                 true      2   25.93  25.93
+  identity       false    30    1.42   7.85
+                 true      2   58.93  58.93
+  local_text     false    10    0.27   0.59
+                 true     12    1.18   8.05
+  quantity       false     5    4.27  11.67
+                 true      4   84.62  68.14
+  relationship   false     1    1.08   1.08
+  topic          true      2   -0.12  -0.12
+
