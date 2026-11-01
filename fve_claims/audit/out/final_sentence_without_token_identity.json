@@ -1,0 +1,130 @@
+{
+  "filter": "final verbalizer sentence; exclude subtypes final_token and final_word from both truth classes",
+  "scope": "Explicit token/word identity only; other claims about the source ending remain.",
+  "score": "100 * (FVE_original - FVE_deleted), using each model's local denominator",
+  "intervals": "95% percentile document-cluster bootstrap; equal claim weighting",
+  "seed": 0,
+  "draws": 4000,
+  "models": {
+    "7B": {
+      "excluded_counts": {
+        "true": 94,
+        "false": 6
+      },
+      "original": {
+        "documents": 100,
+        "valid_bootstrap_draws": 4000,
+        "true": {
+          "claims": 160,
+          "documents": 96,
+          "mean_drop_pp": 3.2591521193413513,
+          "ci95_pp": [
+            2.4800890133286235,
+            4.185767085925619
+          ]
+        },
+        "false": {
+          "claims": 206,
+          "documents": 95,
+          "mean_drop_pp": 1.2339649085122097,
+          "ci95_pp": [
+            0.8776434887273762,
+            1.6086401225814138
+          ]
+        },
+        "true_minus_false_pp": 2.0251872108291415,
+        "gap_ci95_pp": [
+          1.189323791417582,
+          3.011009859141884
+        ]
+      },
+      "without_token_identity": {
+        "documents": 100,
+        "valid_bootstrap_draws": 4000,
+        "true": {
+          "claims": 66,
+          "documents": 54,
+          "mean_drop_pp": 2.4091618089077613,
+          "ci95_pp": [
+            1.2756642796840647,
+            3.8099384758832695
+          ]
+        },
+        "false": {
+          "claims": 200,
+          "documents": 95,
+          "mean_drop_pp": 1.2046009045133292,
+          "ci95_pp": [
+            0.8465336461547642,
+            1.59730513850613
+          ]
+        },
+        "true_minus_false_pp": 1.204560904394432,
+        "gap_ci95_pp": [
+          -0.005917135600160882,
+          2.6703006496786803
+        ]
+      }
+    },
+    "27B": {
+      "excluded_counts": {
+        "true": 7,
+        "false": 1
+      },
+      "original": {
+        "documents": 90,
+        "valid_bootstrap_draws": 4000,
+        "true": {
+          "claims": 104,
+          "documents": 68,
+          "mean_drop_pp": 29.08709273616345,
+          "ci95_pp": [
+            22.617063283274316,
+            36.12492454575056
+          ]
+        },
+        "false": {
+          "claims": 168,
+          "documents": 70,
+          "mean_drop_pp": 4.601177993498357,
+          "ci95_pp": [
+            2.304899875973638,
+            7.632257989048956
+          ]
+        },
+        "true_minus_false_pp": 24.48591474266509,
+        "gap_ci95_pp": [
+          17.200553315992103,
+          31.855607134410853
+        ]
+      },
+      "without_token_identity": {
+        "documents": 87,
+        "valid_bootstrap_draws": 4000,
+        "true": {
+          "claims": 97,
+          "documents": 65,
+          "mean_drop_pp": 31.06532898963644,
+          "ci95_pp": [
+            24.37926234215543,
+            38.81638586169208
+          ]
+        },
+        "false": {
+          "claims": 167,
+          "documents": 69,
+          "mean_drop_pp": 4.628802759016983,
+          "ci95_pp": [
+            2.2694373407625354,
+            7.574312329865969
+          ]
+        },
+        "true_minus_false_pp": 26.436526230619457,
+        "gap_ci95_pp": [
+          19.025481933351912,
+          34.2272658960818
+        ]
+      }
+    }
+  }
+}

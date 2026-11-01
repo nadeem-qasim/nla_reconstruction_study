@@ -1,0 +1,91 @@
+{
+  "seed": 0,
+  "draws": 4000,
+  "method": "Percentile bootstrap resampling all documents with replacement; claims weighted equally; larger drops predict true.",
+  "results": {
+    "7B": {
+      "All claims": {
+        "auroc": 0.5812529131819815,
+        "ci95": [
+          0.5512277638402999,
+          0.6130016845671376
+        ],
+        "n_true": 519,
+        "n_false": 649,
+        "valid_draws": 4000
+      },
+      "Final explanation sentence": {
+        "auroc": 0.6676881067961165,
+        "ci95": [
+          0.6128063761987015,
+          0.7266600076575097
+        ],
+        "n_true": 160,
+        "n_false": 206,
+        "valid_draws": 4000
+      },
+      "Elsewhere in explanation": {
+        "auroc": 0.5417418588127291,
+        "ci95": [
+          0.5022805134310103,
+          0.5825268124164923
+        ],
+        "n_true": 359,
+        "n_false": 443,
+        "valid_draws": 4000
+      },
+      "Paraphrase": {
+        "auroc": 0.5041474804872473,
+        "ci95": [
+          0.4764029736484983,
+          0.5313366177360597
+        ],
+        "n_true": 519,
+        "n_false": 649,
+        "valid_draws": 4000
+      }
+    },
+    "27B": {
+      "All claims": {
+        "auroc": 0.4900933508664575,
+        "ci95": [
+          0.4505005845262782,
+          0.5292675746945021
+        ],
+        "n_true": 863,
+        "n_false": 445,
+        "valid_draws": 4000
+      },
+      "Final explanation sentence": {
+        "auroc": 0.6957417582417582,
+        "ci95": [
+          0.6253725115330273,
+          0.7641907422480178
+        ],
+        "n_true": 104,
+        "n_false": 168,
+        "valid_draws": 4000
+      },
+      "Elsewhere in explanation": {
+        "auroc": 0.5059526357595735,
+        "ci95": [
+          0.46136868705238343,
+          0.5513356729478077
+        ],
+        "n_true": 759,
+        "n_false": 277,
+        "valid_draws": 4000
+      },
+      "Paraphrase": {
+        "auroc": 0.4951996562813285,
+        "ci95": [
+          0.45663497806082154,
+          0.5335198802747684
+        ],
+        "n_true": 863,
+        "n_false": 445,
+        "valid_draws": 4000
+      }
+    }
+  }
+}

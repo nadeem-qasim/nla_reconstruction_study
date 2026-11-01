@@ -1,99 +1,90 @@
-# Open-NLA deletion effects replicate in the mean, but do not reliably verify individual claims
+# Deletion Gap of Reconstruction in Natural Language Autoencoders is in the Final Explanation Sentence
 
-### A replication and stress test of claim deletion and paraphrase scoring
+## Abstract
 
-**Abstract.** [Natural Language Autoencoders (NLAs)](https://transformer-circuits.pub/2026/nla/) map a model
-activation to a text explanation and back again. Their authors report that deleting true claims from an explanation
-hurts reconstruction more than deleting false claims, while warning that this is a noisy per-claim signal. I test that
-claim on two released NLAs—Qwen2.5-7B layer 20 and Qwen3.6-27B layer 42—using 100 truncated Re-DocRED Wikipedia
-prefixes. The aggregate deletion effect reproduces in direction, but individual-claim discrimination is chance-level
-on 27B and weak on 7B. The observed true–false gap is concentrated in claims from the final verbalizer sentence.
-Sentence-level heavy paraphrase adds no reliable discrimination. These results qualify this deletion score as a
-per-claim verifier in this evaluation; they do not establish a general property of NLAs.
+AIs monitoring, reporting or restricting other AIs is a really interesting direction in control research. This can be done on several levels. For instance, behavior (what actions the AI is taking), reasoning traces (what's the AI thinking out loud), and white box (what's the AI's thinking internally).
 
-## Question and main result
+Natural language autoencoders ([NLAs](https://transformer-circuits.pub/2026/nla/)) are an interesting thing in the third category. They explain in natural language an LLM's internal thoughts (more precisely activation at a particular layer at a particular token). An issue is the explanation can contain hallucinations.
 
-For each final-token activation, I generate an NLA explanation, split it into atomic claims, label claims against the
-visible source prefix, and measure the FVE drop after deleting each claim. FVE is the fraction of activation variance
-explained by reconstruction; a larger drop means the deleted text mattered more to the AR.
+NLAs are trained unsupervised with an encoder-decoder setup. The encoder converts the activation to natural language, the decoder converts back to an activation, and the reconstruction error drives the training.
 
-| model | scored true / false claims | mean deletion drop, true / false (pp) | per-claim AUROC, 95% document-bootstrap CI |
-|---|---:|---:|---:|
-| Qwen2.5-7B, layer 20 | 519 / 649 | 1.58 / 0.94 | 0.581 [0.551, 0.613] |
-| Qwen3.6-27B, layer 42 | 863 / 445 | 4.15 / 2.66 | 0.490 [0.451, 0.529] |
+The paper found that a larger mean drop in fraction of variance explained (FVE), so worse reconstruction, occurs from deleting true claims than false claims. This could be a useful monitor if usable to filter individual claims.
 
-Thus deletion reproduces the aggregate direction, but is not a reliable individual-claim truth score here: 27B is at
-chance and 7B is weak. Heavy paraphrase did not improve discrimination: the 27B mean drop was 0.09 pp for true versus
-0.20 pp for false claims, while 7B drops were about 17 pp for both classes.
+I ran experiments on two open NLAs (Qwen2.5-7B Layer 20 and Qwen3.6-27B Layer 42) with the following findings
 
-## Where the deletion gap appears
+1. despite mean deletion gap, individual claim discrimination is weak for 7B, and a coin flip for 27B (AUROC near 0.5)
 
-The aggregate gap is concentrated in claims from the final verbalizer sentence. The corresponding claims elsewhere in
-the explanation show no true-over-false advantage on either model.
+2. claims associated with the final sentence have better discrimination (0.67 and 0.70 AUROC)
 
-| model | final verbalizer sentence: true / false drop (pp) | elsewhere: true / false drop (pp) |
-|---|---:|---:|
-| 7B | 3.26 / 1.23 | 0.84 / 0.81 |
-| 27B | 29.09 / 4.60 | 0.73 / 1.48 |
+3. paraphrasing (syntax changed, semantics held constant) does not add additional discriminative value
 
-![Deletion drop by claim position: final sentence vs elsewhere, both models](fve_claims/figures/deletion_by_position.png)
+![](https://res.cloudinary.com/lesswrong-2-0/image/upload/v1793502373/lexical_client_uploads/rcyguljicpbpmk3zelpg.png)
 
-This is a positional observation, not a demonstrated mechanism. One possible explanation is that final verbalizer
-sentences disproportionately describe information associated with the source prefix's ending, such as its final token
-or an incomplete final phrase. The present experiment does not test that explanation directly.
+## Main result
 
-## Scope, alternative explanations, and limitations
+- **Data:** 100 Re-DocRED Wikipedia introductions, each cut at a word boundary; the activation is read at its final token
+- **Claims:** explanations are split into atomic true, false, and irrelevant claims against the prefix and Re-DocRED annotations; see [the annotation guide](https://fve_claims/ANNOTATION_GUIDE.md).
+- **Edits:** deletions remove exact claim text spans, and paraphrases rewrite a sentence preserving semantics
+- **Analysis:** calculate FVE-drop per claim and means, confidence intervals, per-claim AUROC, claims labeled with category (theme, entity, detail) and position (final sentence or not)
 
-- **Model and protocol specificity.** These are two released open NLAs, not Anthropic's proprietary Claude NLAs.
-  Results may depend on NLA training, target model, layer, explanation format, dataset, or activation location.
-- **Claim-type confounding.** In final sentences, token-identity claims are rarely false (6/100 on 7B; 5/76 on 27B),
-  whereas attributes and identifications are often false. The residual gap may therefore compare claim types rather
-  than truth.
-- **Text-editing and annotation limits.** Deletion changes the AR's token sequence as well as a claim's meaning.
-  Labels are Claude-produced and provisional; a 17-claim blind check agreed on 14 initially, with two human mistakes
-  and one Claude error. Heavy paraphrases are scored per sentence, so claims in one sentence share a score.
-- **Pilot-scale evidence.** There are 100 documents, and 27B mean effects are outlier-heavy. Claims within documents
-  are dependent, and the final-sentence/locality analysis is exploratory.
-- **27B setup deviation.** The released pair has no separate target model: activations use `av_base` warm-start LoRA
-  merged weights, and the FVE denominator is computed from the 100 pilot activations.
+For each final-token activation, NLA explanations are generated, split into atomic claims, labeled using an LLM-as-judge with the source text as reference (I hand-checked 15+ randomized <text,claim> pairs with 1 disagreement).
 
-**Relation to the original NLA evaluation.** Anthropic reports claim deletion across explanations, but not a breakdown
-by claim position in the verbalizer output. It is therefore unknown whether its aggregate result would persist after
-excluding final-sentence claims, or whether the same positional pattern occurs in its models. Its result and this one
-are not directly contradictory: its evaluation uses proprietary Claude NLAs and pretraining-like text, while this one
-uses released 7B/27B NLAs and truncated Re-DocRED prefixes. Differences could reflect model family, training run,
-dataset, activation location, claim-extraction protocol, or an unreported positional analysis.
+The FVE is measured after deleting each claim, and the percentage points (**pp**) change is recorded.
 
-## Methods at a glance
+![](https://res.cloudinary.com/lesswrong-2-0/image/upload/v1793501250/lexical_client_uploads/vr3pf5hhcghzy0ktutxc.png)
 
-- **Data:** 100 Re-DocRED Wikipedia introductions, each cut at a word boundary; the activation is read at its final
-  token.
-- **Claims:** explanations are split into atomic true, false, and irrelevant claims against the prefix and Re-DocRED
-  annotations; see [the annotation guide](fve_claims/ANNOTATION_GUIDE.md).
-- **Edits:** deletions remove exact claim spans mechanically; heavy paraphrases rewrite an entire sentence while
-  preserving its propositions.
-- **Analysis:** report FVE-drop means, document-cluster bootstrap intervals, and per-claim AUROC. Headline and audit
-  scripts read committed data artifacts.
+AUROC tells us how well the FVE separate the claims; for a random pair of true and false claim, the probability that the true claim has a larger FVE drop.
 
-## Reproducing the headline
 
-```sh
-uv run python fve_claims/audit/headline_table.py       # deletion and paraphrase drops, document-bootstrap intervals
-uv run python fve_claims/audit/auroc_and_position.py   # AUROC and the final-sentence split
-uv run python fve_claims/audit/random_examples.py      # two random documents: explanation, claims, labels, drops
-uv run python fve_claims/audit/make_spotcheck.py       # blind label check; score with score_spotcheck.py
-```
+| model                 | mean drop, true / false (pp) | AUROC (95% CI)       |
+| --------------------- | ---------------------------- | -------------------- |
+| Qwen2.5-7B, layer 20  | 1.58 / 0.94                  | 0.581 [0.551, 0.613] |
+| Qwen3.6-27B, layer 42 | 4.15 / 2.66                  | 0.490 [0.451, 0.529] |
 
-## Layout
 
-| path | what |
-|---|---|
-| `fve_claims/` | the experiment: claims, labels, edits, scores, analysis |
-| `fve_claims/analysis_27b/` | one script per reported number (see its README) |
-| `fve_claims/audit/` | verification: blind label check, re-derivations, random examples |
-| `fve_claims/audit/out/` | blind label check (sheet and key) and the paraphrase samples |
-| `src/`, `scripts/` | 7B NLA library and model loader; dataset builder and checkpoint setup for both NLAs |
-| `PROVENANCE.md` | what the human decided, checked and found by hand |
+So deletion reproduces the mean FVE gap between true and false claims. However individual discrimination is weak (7B) or near chance (27B)
 
-Agents wrote most of the code and produced the provisional claim labels; the research decisions, the audits and
-the conclusions are mine. `PROVENANCE.md` records which is which.
+I also experimented with paraphrasing; it did not improve discrimination. The 27B's mean drop was 0.09 **pp** and 0.20 **pp** for true and false claims respectively, and 17 **pp** mean drop for either claim type for 7B. Combining paraphrase and deletion drops using logistic regression did not improve AUROC.
+
+Claim category (theme, entity, or detail) effects mirrored the original paper's result. Results on 27B:
+
+![](https://res.cloudinary.com/lesswrong-2-0/image/upload/v1793502323/lexical_client_uploads/ukykfzca7xeikg9cnj5a.png)
+
+## Final explanation sentence carries most of the signal
+
+The mean true-false gap is concentrated in claims in the final explanation sentence, which typically describe the activation site or source ending.
+
+![](https://res.cloudinary.com/lesswrong-2-0/image/upload/v1793501657/lexical_client_uploads/goa4lavrondfvjmkzha5.png)
+
+## Alternative explanations and limitations
+
+- Only two models tested with max 27B parameters; phenomena may differ at scale and on other model families
+- Dataset is artificial and limited in size, 100 wikipedia articles with roughly 1200 claims evaluated per model
+- The original NLA paper used different models (Haiku, Opus), and didn't report breakdown by explanation sentence Differences in activation site location, or claim-extraction and labeling method could also explain the difference
+
+## Related Work
+
+While doing the write up, I came across following works.
+
+- Shorter NLA explanations ([https://www.lesswrong.com/posts/NazprRfWJ4qkwcSro/nla-explanations-can-be-shortened-without-harming](https://www.lesswrong.com/posts/NazprRfWJ4qkwcSro/nla-explanations-can-be-shortened-without-harming)): substantially shorter explanations can retain reconstruction quality
+- Three Pieces of Evidence that the NLA Reconstructor Does Not Read Semantics or Syntax ([https://www.lesswrong.com/posts/Q5fwBiZCwHGeKucmo/three-pieces-of-evidence-that-the-nla-reconstructor-does-not](https://www.lesswrong.com/posts/Q5fwBiZCwHGeKucmo/three-pieces-of-evidence-that-the-nla-reconstructor-does-not)): reconstruction responds poorly to changes in meaning and grammar
+- Train the Model, Not the Reader ([https://arxiv.org/abs/2607.20379](https://arxiv.org/abs/2607.20379)): good reconstruction need not validate individual claims
+- Training activation verbalizers to front-load reconstruction-relevant information ([https://www.lesswrong.com/posts/aWYQHh2pEFCLYh85C/matryoshka-nlas-training-activation-verbalizers-to-frontload-1](https://www.lesswrong.com/posts/aWYQHh2pEFCLYh85C/matryoshka-nlas-training-activation-verbalizers-to-frontload-1)): randomly truncating explanations during training makes the NLA front-load the most reconstruction sensitive claims, though FVE did not help filter hallucinations
+
+
+
+## Table of Content
+
+
+| path                       | what                                                                                |
+| -------------------------- | ----------------------------------------------------------------------------------- |
+| `fve_claims/`              | claims, labels, edits, scores, analysis                                             |
+| `fve_claims/analysis_27b/` | script per reported number                                                          |
+| `fve_claims/audit/`        | blind label check, sheet and key                                                    |
+|                            |                                                                                     |
+| `src/`, `scripts/`         | 7B NLA library and model loader; dataset builder and checkpoint setup for both NLAs |
+| `PROVENANCE.md`            | human and AI division of labor                                                      |
+
+
+Research question, decisions, manual checks, and writing are mine. 
+AI did most of the coding, assisted analyses, feedback on writing, and summarized existing work. 
